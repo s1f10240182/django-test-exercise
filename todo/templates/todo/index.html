@@ -32,6 +32,10 @@
       <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
     </div>
 
+    <div>
+      <a href="{% url 'delete_closed' %}">Delete Completed Tasks</a>
+    </div>
+
     {% for task in tasks %}
     <div class="text">
       <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>

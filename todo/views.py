@@ -65,3 +65,7 @@ def close(request, task_id):
     task.completed = True
     task.save()
     return redirect(index)
+
+def delete_closed(request):
+    Task.objects.filter(completed=True).delete()
+    return redirect(index)
