@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>登録</title>
+    <meta charset='utf-8' />
+    <link href="{% static 'todo/css/login.css'%}" rel="stylesheet">
+</head>
+<body>
+    <div id="login">
+    <h2>ユーザー登録</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="login">
+            <input type="text" name="username" placeholder="ID" required>
+            <input type="password" name="password" placeholder="パスワード" required>
+        </div>
+        <div class="login">
+            <input type="password" name="confirm_password" placeholder="パスワード確認" required>
+        </div>
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+        <button type="submit">登録</button>
+    </form>
+    <p><a href="{% url 'login' %}">ログイン</a></p>
+    </div>
+</body>
+
+</html>
