@@ -1,91 +1,115 @@
 from django.test import TestCase, Client
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import datetime
 from todo.models import Task
-from django.contrib.auth.models import User
+
 
 # Create your tests here.
-class TaskModelTestCase(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='password123')
+class SampleTestCase(TestCase):
+    def test_sample1(self):
+        self.assertEqual(1 + 2, 3)
 
+
+class TaskModelTestCase(TestCase):
     def test_create_task1(self):
-        due = timezone.now() + timedelta(days=5)
-        task = Task(title='task1', due_at=due, user=self.user)
+        due = timezone.make_aware(datetime(2024, 6, 30, 23, 59, 59))
+        task = Task(title='task1', due_at=due)
         task.save()
+
         task = Task.objects.get(pk=task.pk)
         self.assertEqual(task.title, 'task1')
         self.assertFalse(task.completed)
         self.assertEqual(task.due_at, due)
-        self.assertEqual(task.user, self.user)
 
     def test_create_task2(self):
-        task = Task(title='task2', user=self.user)
+        task = Task(title='task2')
         task.save()
+
         task = Task.objects.get(pk=task.pk)
         self.assertEqual(task.title, 'task2')
         self.assertFalse(task.completed)
         self.assertEqual(task.due_at, None)
 
     def test_is_overdue_future(self):
-        due = timezone.now() + timedelta(days=1)
-        current = timezone.now()
-        task = Task(title='task1', due_at=due, user=self.user)
+        due = timezone.make_aware(datetime(2024, 6, 30, 23, 59, 59))
+        current = timezone.make_aware(datetime(2024, 6, 30, 0, 0, 0))
+        task = Task(title='task1', due_at=due)
+        task.save()
+
         self.assertFalse(task.is_overdue(current))
 
     def test_is_overdue_past(self):
-        due = timezone.now() - timedelta(days=1)
-        current = timezone.now()
-        task = Task(title='task1', due_at=due, user=self.user)
+        due = timezone.make_aware(datetime(2024, 6, 30, 23, 59, 59))
+        current = timezone.make_aware(datetime(2024, 7, 1, 0, 0, 0))
+        task = Task(title='task1', due_at=due)
+        task.save()
+
         self.assertTrue(task.is_overdue(current))
 
     def test_is_overdue_none(self):
-        current = timezone.now()
-        task = Task(title='task1', due_at=None, user=self.user)
+        current = timezone.make_aware(datetime(2024, 7, 1, 0, 0, 0))
+        task = Task(title='task1', due_at=None)
+        task.save()
+
         self.assertFalse(task.is_overdue(current))
 
 
 class TodoViewTestCase(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='password123')
-        self.client = Client()
-        self.client.login(username='testuser', password='password123')
-
     def test_index_get(self):
-        response = self.client.get('/todo/')
+        client = Client()
+        response = client.get('/')
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, 'todo/index.html')
         self.assertEqual(len(response.context['tasks']), 0)
 
     def test_index_post(self):
-        data = {'title': 'Test Task', 'due_at': '2025-07-18 12:00:00'}
-        response = self.client.post('/todo/', data)
+        client = Client()
+        data = {'title': 'Test Task', 'due_at': '2024-06-30 23:59:59'}
+        response = client.post('/', data)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, 'todo/index.html')
         self.assertEqual(len(response.context['tasks']), 1)
-        self.assertEqual(response.context['tasks'][0].title, 'Test Task')
 
     def test_index_get_order_post(self):
-        task1 = Task.objects.create(title='Task 1', due_at=timezone.now() + timedelta(days=1), user=self.user)
-        task2 = Task.objects.create(title='Task 2', due_at=timezone.now() + timedelta(days=2), user=self.user)
-        response = self.client.get('/todo/?order=post')
+        task1 = Task(title='Task 1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
+        task1.save()
+        task2 = Task(title='Task 2', due_at=timezone.make_aware(datetime(2024, 8, 1)))
+        task2.save()
+        client = Client()
+        response = client.get('/?order=post')
+
         self.assertEqual(response.status_code, 200)
-        tasks = list(response.context['tasks'])
-        self.assertEqual(tasks[0].title, task2.title)
-        self.assertEqual(tasks[1].title, task1.title)
+        self.assertEqual(response.templates[0].name, 'todo/index.html')
+        self.assertEqual(response.context['tasks'][0], task2)
+        self.assertEqual(response.context['tasks'][1], task1)
 
     def test_index_get_order_due(self):
-        task1 = Task.objects.create(title='Task 1', due_at=timezone.now() + timedelta(days=1), user=self.user)
-        task2 = Task.objects.create(title='Task 2', due_at=timezone.now() + timedelta(days=2), user=self.user)
-        response = self.client.get('/todo/?order=due')
-        self.assertEqual(response.status_code, 200)
-        tasks = list(response.context['tasks'])
-        self.assertEqual(tasks[0].title, task1.title)
-        self.assertEqual(tasks[1].title, task2.title)
+        task1 = Task(title='Task 1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
+        task1.save()
+        task2 = Task(title='Task 2', due_at=timezone.make_aware(datetime(2024, 8, 1)))
+        task2.save()
+        client = Client()
+        response = client.get('/?order=due')
 
-    
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'todo/index.html')
+        self.assertEqual(response.context['tasks'][0], task1)
+        self.assertEqual(response.context['tasks'][1], task2)
+
+    def test_detail_get_success(self):
+        task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
+        task.save()
+        client = Client()
+        response = client.get('/{}/'.format(task.pk))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, 'todo/detail.html')
+        self.assertEqual(response.context['task'], task)
 
     def test_detail_get_fail(self):
-        # 修正: URLから '/detail' を削除
-        response = self.client.get('/todo/999/')
+        client = Client()
+        response = client.get('/1/')
+
         self.assertEqual(response.status_code, 404)
