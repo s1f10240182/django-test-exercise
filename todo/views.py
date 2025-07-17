@@ -70,7 +70,7 @@ def delete_closed(request):
     Task.objects.filter(completed=True).delete()
     return redirect(index)
 
-def toggle_completed(request, task_id):
+def toggle_complete(request, task_id):
     try:
         task = Task.objects.get(pk=task_id)
     except Task.DoesNotExist:
