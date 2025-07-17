@@ -10,8 +10,6 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
 # Create your views here.
-
-
 def u_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
