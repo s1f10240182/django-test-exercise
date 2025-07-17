@@ -65,3 +65,33 @@ def close(request, task_id):
     task.completed = True
     task.save()
     return redirect(index)
+
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        
+        if not username or not password or not confirm_password:
+            context = {
+        "error": '入力に不備があります',
+    }
+            return render(request,'todo/register.html',context)
+        if password != confirm_password:
+            context = {
+        "error": 'パスワードが一致しません',
+    }
+            return render(request,'todo/register.html',context)
+        if User.objects.filter(username=username).exists():
+            context = {
+        "error": 'このIDはすでに使用されています',
+    }
+            return render(request,'todo/register.html',context)
+
+        
+        user = User.objects.create_user(username=username, password=password)
+        user.save()
+        return redirect('login')
+
+    return render(request, 'todo/register.html')
