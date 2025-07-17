@@ -15,11 +15,11 @@
       {% csrf_token %}
       <div>
         <label for="titleInput">Title</label><br>
-        <input id="titleInput" name="title" type="text" placeholder="Input title">
+        <input id="titleInput" name="title" type="text" placeholder="Input title" required>
       </div>
       <div>
         <label for="dueInput">Due at:</label><br>
-        <input id="dueInput" name="due_at" type="datetime-local">
+        <input id="dueInput" name="due_at" type="datetime-local" required>
       </div>
       <div>
         <button type="submit">Submit</button>
