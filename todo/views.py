@@ -69,3 +69,13 @@ def close(request, task_id):
 def delete_closed(request):
     Task.objects.filter(completed=True).delete()
     return redirect(index)
+
+def toggle_complete(request, task_id):
+    try:
+        task = Task.objects.get(pk=task_id)
+    except Task.DoesNotExist:
+        raise Http404("Task does not exist")
+    
+    task.completed = not task.completed
+    task.save()
+    return redirect(index)
