@@ -4,6 +4,8 @@ from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from todo.models import Task
 
+from datetime import timedelta
+from django.utils import timezone
 
 # Create your views here.
 def index(request):
@@ -11,6 +13,14 @@ def index(request):
         task = Task(title=request.POST['title'],
                     due_at=make_aware(parse_datetime(request.POST['due_at'])))
         task.save()
+
+    now = timezone.now()
+    upcoming_tasks = Task.objects.filter(
+        completed=False,
+        due_at__isnull=False,
+        due_at__gte=now,
+        due_at__lte=now + timedelta(days=3)
+    ).order_by('due_at')
 
     if request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
@@ -20,6 +30,9 @@ def index(request):
     context = {
         'tasks': tasks
     }
+
+    context['upcoming_tasks'] = upcoming_tasks
+    
     return render(request, 'todo/index.html', context)
 
 def detail(request, task_id):

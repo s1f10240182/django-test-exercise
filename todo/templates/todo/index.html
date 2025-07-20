@@ -27,6 +27,22 @@
     </form>
     <br>
 
+    {% if upcoming_tasks %}
+    <div>
+        <h2>締め切りが近いタスク (3日以内)</h2>
+        {% for task in upcoming_tasks %}
+        <div>
+            <h4><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h4>
+            <ul>
+                <li>Posted at: {{ task.posted_at|date:"Y/m/d H:i" }}</li>
+                <li>Due at: {{ task.due_at|date:"Y/m/d H:i" }}</li>
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+    <hr>
+    {% endif %}
+
     <div>
       <a href="{% url 'index' %}?order=due">Sort by Due Date</a> |
       <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
