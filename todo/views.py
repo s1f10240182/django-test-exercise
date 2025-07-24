@@ -10,8 +10,10 @@ from django.utils import timezone
 # Create your views here.
 def index(request):
     if request.method == 'POST':
+        priority = request.POST.get('priority', 'medium')
         task = Task(title=request.POST['title'],
-                    due_at=make_aware(parse_datetime(request.POST['due_at'])))
+                    due_at=make_aware(parse_datetime(request.POST['due_at'])),
+                    priority=priority)
         task.save()
 
     now = timezone.now()
@@ -54,6 +56,7 @@ def update(request, task_id):
     if request.method == 'POST':
         task.title = request.POST['title']
         task.due_at = make_aware(parse_datetime(request.POST['due_at']))
+        task.priority = request.POST.get('priority', 'medium')
         task.save()
         return redirect(detail, task_id)
 
