@@ -2,7 +2,7 @@ body {
   font-family: "Segoe UI", "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   background: #f8f9fa;
   margin: 0;
-  padding: 0 0 40px 40px;
+  padding: 40px 40px;
 }
 
 h1 {
@@ -18,7 +18,7 @@ form {
   max-width: 400px;
 }
 
-input[type="text"], input[type="datetime-local"] {
+input, select {
   width: 95%;
   padding: 6px;
   margin: 6px 0 12px 0;
