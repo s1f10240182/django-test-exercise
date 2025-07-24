@@ -6,6 +6,7 @@
     <title>To Do Application</title>
     <meta charset="UTF-8">
     <meta name="author" content="INIAD">
+    <link rel="stylesheet" href="{% static 'todo/style.css' %}">
   </head>
 
   <body>
@@ -63,22 +64,21 @@
 
     {% for task in tasks %}
     <div class="text">
-      <h2><a href="{% url 'detail' task.id %}">{{ task.title }}</a></h2>
-      <ul>
+      <ul style="list-style: none; padding-left: 0;">
+        <li style="display: flex; align-items: center;">
+          <form action="{% url 'toggle_complete' task.id %}" method="post" style="margin: 0; display: flex; align-items: center;">
+            {% csrf_token %}
+            <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %} onchange="this.form.submit()" style="margin-right: 8px;">
+          </form>
+          <h2 style="margin: 0;">
+            <a href="{% url 'detail' task.id %}">{{ task.title }}</a>
+          </h2>
+        </li>
         <li>Posted at: {{ task.posted_at }}</li>
         {% if task.due_at %} 
         <li>Due at: {{ task.due_at }}</li>
         {% endif %}
         <li>Priority: {{ task.get_priority_display }}</li>
-        <li>
-          <form action="{% url 'toggle_complete' task.id %}" method="post" style="display:inline;">
-            {% csrf_token %}
-            <label>
-              <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %} onchange="this.form.submit()">
-              Completed
-            </label>
-          </form>
-        </li>
       </ul>
     </div>
     {% endfor %}
