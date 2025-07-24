@@ -22,6 +22,14 @@
         <input id="dueInput" name="due_at" type="datetime-local" required>
       </div>
       <div>
+        <label for="priorityInput">Priority:</label><br>
+        <select id="priorityInput" name="priority">
+          <option value="high">High</option>
+          <option value="medium" selected>Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div>
         <button type="submit">Submit</button>
       </div>
     </form>
@@ -36,6 +44,7 @@
             <ul>
                 <li>Posted at: {{ task.posted_at|date:"Y/m/d H:i" }}</li>
                 <li>Due at: {{ task.due_at|date:"Y/m/d H:i" }}</li>
+                <li>Priority: {{ task.get_priority_display }}</li>
             </ul>
         </div>
         {% endfor %}
@@ -60,6 +69,7 @@
         {% if task.due_at %} 
         <li>Due at: {{ task.due_at }}</li>
         {% endif %}
+        <li>Priority: {{ task.get_priority_display }}</li>
         <li>
           <form action="{% url 'toggle_complete' task.id %}" method="post" style="display:inline;">
             {% csrf_token %}
