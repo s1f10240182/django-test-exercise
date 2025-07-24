@@ -3,6 +3,7 @@ from django.http import Http404
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from todo.models import Task
+from django.db import models
 
 from datetime import timedelta
 from django.utils import timezone
@@ -24,8 +25,20 @@ def index(request):
         due_at__lte=now + timedelta(days=3)
     ).order_by('due_at')
 
+    order = request.GET.get('order')
     if request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
+    elif order == 'priority':
+        tasks = Task.objects.order_by(
+            models.Case(
+                models.When(priority='high', then=0),
+                models.When(priority='medium', then=1),
+                models.When(priority='low', then=2),
+                default=3,
+                output_field=models.IntegerField(),
+            ),
+            'due_at'
+        )
     else:
         tasks = Task.objects.order_by('-posted_at')
 
