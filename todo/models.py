@@ -4,6 +4,13 @@ from django.utils import timezone
 
 # Create your models here.
 class Task(models.Model):
+
+PRIORITY_CHOICES = [
+        ('high', 'High'),
+        ('medium', 'Medium'),
+        ('low', 'Low'),
+    ]
+
     title = models.CharField(max_length=100)
     completed = models.BooleanField(default=False)
     posted_at = models.DateTimeField(default=timezone.now)
@@ -13,12 +20,6 @@ class Task(models.Model):
         choices=PRIORITY_CHOICES,
         default='medium',
     )
-
-    PRIORITY_CHOICES = [
-        ('high', 'High'),
-        ('medium', 'Medium'),
-        ('low', 'Low'),
-    ]
 
     def is_overdue(self, dt):
         if self.due_at is None:
